@@ -1,0 +1,74 @@
+[
+  {
+    "id": 8,
+    "username": "user1",
+    "query": "SELECT * FROM employees WHERE username = 'admin' OR 1=1;",
+    "timestamp": "2026-05-06 11:39:59",
+    "risk_status": "CRITICAL",
+    "execution_status": "BLOCKED",
+    "message": "[WARNING] Threats detected: OR 1=1 Injection, OR True Injection, Always True Condition"
+  },
+  {
+    "id": 7,
+    "username": "user1",
+    "query": "SELECT * FROM employees",
+    "timestamp": "2026-04-24 17:26:49",
+    "risk_status": "SAFE",
+    "execution_status": "SUCCESS",
+    "message": "Query returned 10 row(s)."
+  },
+  {
+    "id": 6,
+    "username": "user2",
+    "query": "ALTER TABLE employees",
+    "timestamp": "2026-04-18 14:36:26",
+    "risk_status": "HIGH",
+    "execution_status": "BLOCKED",
+    "message": "[WARNING] Threats detected: ALTER Command"
+  },
+  {
+    "id": 5,
+    "username": "user1",
+    "query": "TRUNCATE TABLE users;",
+    "timestamp": "2026-04-18 14:33:59",
+    "risk_status": "CRITICAL",
+    "execution_status": "BLOCKED",
+    "message": "[WARNING] Threats detected: TRUNCATE Command"
+  },
+  {
+    "id": 4,
+    "username": "admin",
+    "query": "SELECT * FROM employees WHERE username = 'admin' OR 1=1;",
+    "timestamp": "2026-04-18 14:33:09",
+    "risk_status": "CRITICAL",
+    "execution_status": "BLOCKED",
+    "message": "[WARNING] Threats detected: OR 1=1 Injection, OR True Injection, Always True Condition"
+  },
+  {
+    "id": 3,
+    "username": "user1",
+    "query": "SELECT * FROM employees WHERE username = 'admin' OR 1=1;",
+    "timestamp": "2026-04-18 13:28:14",
+    "risk_status": "CRITICAL",
+    "execution_status": "BLOCKED",
+    "message": "[WARNING] Threats detected: OR 1=1 Injection, OR True Injection"
+  },
+  {
+    "id": 2,
+    "username": "user1",
+    "query": "SELECT id, name FROM employees UNION SELECT id, password FROM users;",
+    "timestamp": "2026-04-18 13:27:52",
+    "risk_status": "CRITICAL",
+    "execution_status": "BLOCKED",
+    "message": "[WARNING] Threats detected: UNION SELECT Injection"
+  },
+  {
+    "id": 1,
+    "username": "user1",
+    "query": "SELECT * FROM employees WHERE name = '' OR 'a'='a';",
+    "timestamp": "2026-04-18 13:27:28",
+    "risk_status": "SAFE",
+    "execution_status": "SUCCESS",
+    "message": "Query returned 10 row(s)."
+  }
+]

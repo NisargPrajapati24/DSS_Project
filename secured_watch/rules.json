@@ -1,0 +1,100 @@
+[
+  {
+    "name": "Tautology Attack",
+    "type": "REGEX",
+    "value": "(?i)('\\s*OR\\s+'\\w+'\\s*=\\s*'\\w+')",
+    "threat_level": "CRITICAL",
+    "description": "Detects tautology-based injection like ' OR 'a'='a'"
+  },
+  {
+    "name": "Always True Condition",
+    "type": "REGEX",
+    "value": "(?i)\\bOR\\s+\\d+\\s*=\\s*\\d+",
+    "threat_level": "CRITICAL",
+    "description": "Detects always-true numeric conditions like OR 1=1, OR 2=2"
+  },
+  {
+    "name": "UNION Injection",
+    "type": "REGEX",
+    "value": "(?i)\\bUNION\\s+(ALL\\s+)?SELECT\\b",
+    "threat_level": "CRITICAL",
+    "description": "Detects UNION-based data extraction attempts"
+  },
+  {
+    "name": "Stacked Query",
+    "type": "REGEX",
+    "value": ";\\s*(DROP|DELETE|INSERT|UPDATE|ALTER|CREATE|TRUNCATE|EXEC)",
+    "threat_level": "CRITICAL",
+    "description": "Detects stacked/piggyback queries after semicolons"
+  },
+  {
+    "name": "SQL Comment Bypass",
+    "type": "REGEX",
+    "value": "(--\\s|#|/\\*)",
+    "threat_level": "HIGH",
+    "description": "Detects SQL comment sequences used to bypass query logic"
+  },
+  {
+    "name": "DROP TABLE",
+    "type": "KEYWORD",
+    "value": "DROP TABLE",
+    "threat_level": "CRITICAL",
+    "description": "Blocks any attempt to drop database tables"
+  },
+  {
+    "name": "DROP DATABASE",
+    "type": "KEYWORD",
+    "value": "DROP DATABASE",
+    "threat_level": "CRITICAL",
+    "description": "Blocks any attempt to drop entire databases"
+  },
+  {
+    "name": "EXEC Command",
+    "type": "REGEX",
+    "value": "(?i)\\bEXEC(UTE)?\\b",
+    "threat_level": "HIGH",
+    "description": "Blocks EXEC/EXECUTE commands that can run stored procedures"
+  },
+  {
+    "name": "xp_cmdshell",
+    "type": "KEYWORD",
+    "value": "xp_cmdshell",
+    "threat_level": "CRITICAL",
+    "description": "Blocks xp_cmdshell which can execute OS commands"
+  },
+  {
+    "name": "SLEEP / Blind SQLi",
+    "type": "REGEX",
+    "value": "(?i)\\b(SLEEP|BENCHMARK|WAITFOR\\s+DELAY)\\b",
+    "threat_level": "HIGH",
+    "description": "Detects time-based blind SQL injection techniques"
+  },
+  {
+    "name": "LOAD_FILE / INTO OUTFILE",
+    "type": "REGEX",
+    "value": "(?i)\\b(LOAD_FILE|INTO\\s+(OUT|DUMP)FILE)\\b",
+    "threat_level": "CRITICAL",
+    "description": "Blocks file read/write operations through SQL"
+  },
+  {
+    "name": "Hex Encoding Attack",
+    "type": "REGEX",
+    "value": "(?i)(0x[0-9a-f]{8,}|CHAR\\s*\\()",
+    "threat_level": "HIGH",
+    "description": "Detects hex-encoded strings or CHAR() obfuscation used to bypass filters"
+  },
+  {
+    "name": "Information Schema Probe",
+    "type": "KEYWORD",
+    "value": "information_schema",
+    "threat_level": "HIGH",
+    "description": "Blocks queries probing database metadata via information_schema"
+  },
+  {
+    "name": "SQLite Master Table Probe",
+    "type": "KEYWORD",
+    "value": "sqlite_master",
+    "threat_level": "CRITICAL",
+    "description": "Blocks attempts to read SQLite internal schema table"
+  }
+]

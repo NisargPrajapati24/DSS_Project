@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SecureDB Watch — A Database Activity Monitoring and Auditing System with real-time threat detection and role-based access control.">
+    <title>🛡️ SecureDB Watch — Database Activity Monitor</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+
+    <!-- ═══ Toast Notifications ═══ -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ═══ Login Screen ═══ -->
+    <div id="login-screen">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-shield">🛡️</div>
+                <h1 class="login-title">SecureDB Watch</h1>
+                <p class="login-subtitle">Database Activity Monitoring & Auditing System</p>
+
+                <div class="login-error" id="login-error"></div>
+
+                <form id="login-form" autocomplete="off">
+                    <div class="form-group">
+                        <label for="login-username">Username</label>
+                        <input type="text" id="login-username" placeholder="Enter your username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="login-btn">
+                        🔐 Sign In
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin-top: 1.5rem; font-size: 0.72rem; color: var(--text-muted);">
+                    Default: admin / admin123
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Application Container ═══ -->
+    <div id="app-container">
+
+        <!-- ── Sidebar (Admin Only) ── -->
+        <nav class="sidebar" id="sidebar" style="display: none;">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <span class="sidebar-logo">🛡️</span>
+                    <div class="sidebar-brand-text">
+                        <h2>SecureDB Watch</h2>
+                        <span>Monitoring System</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-nav">
+                <div class="nav-section-label">Main</div>
+                <div class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
+                    <span class="nav-item-icon">🖥️</span>
+                    Dashboard
+                </div>
+
+                <div class="nav-section-label">Security</div>
+                <div class="nav-item" data-section="logs" onclick="showSection('logs')">
+                    <span class="nav-item-icon">📜</span>
+                    Audit Logs
+                </div>
+                <div class="nav-item" data-section="rules" onclick="showSection('rules')">
+                    <span class="nav-item-icon">⚙️</span>
+                    Rules Engine
+                </div>
+
+                <div class="nav-section-label">Administration</div>
+                <div class="nav-item" data-section="users" onclick="showSection('users')">
+                    <span class="nav-item-icon">👤</span>
+                    User Management
+                </div>
+                <div class="nav-item" data-section="roles" onclick="showSection('roles')">
+                    <span class="nav-item-icon">🛡️</span>
+                    Role Management
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="name" id="user-name">admin</div>
+                        <div class="role" id="user-role">admin</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Sign Out</button>
+            </div>
+        </nav>
+
+        <!-- ── Topbar (Non-Admin Users) ── -->
+        <div class="topbar" id="topbar" style="display: none;">
+            <div class="topbar-brand">
+                <span class="sidebar-logo">🛡️</span>
+                <span class="topbar-title">SecureDB Watch</span>
+            </div>
+            <div class="topbar-nav">
+                <button class="topbar-link active" data-section="dashboard" onclick="showSection('dashboard')">🖥️ Dashboard</button>
+                <button class="topbar-link" data-section="mylogs" onclick="showSection('mylogs')">📋 My Activity</button>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-user">
+                    <div class="user-avatar" id="topbar-avatar">U</div>
+                    <div class="user-details">
+                        <div class="name" id="topbar-name">user</div>
+                        <div class="role" id="topbar-role">role</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Sign Out</button>
+            </div>
+        </div>
+
+        <!-- ── Main Content ── -->
+        <main class="main-content" id="main-content">
+
+            <!-- ═══ DASHBOARD SECTION ═══ -->
+            <div id="dashboard" class="section active">
+                <div class="page-header">
+                    <h1 class="page-title">🖥️ Dashboard</h1>
+                    <p class="page-subtitle">Real-time database activity monitoring and query console</p>
+                </div>
+
+                <!-- Stats Grid (admin only, populated by JS) -->
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card purple">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">Total Queries</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="stat-success">0</div>
+                        <div class="stat-label">Successful</div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-icon">🚫</div>
+                        <div class="stat-value" id="stat-blocked">0</div>
+                        <div class="stat-label">Blocked</div>
+                    </div>
+                    <div class="stat-card yellow">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-value" id="stat-errors">0</div>
+                        <div class="stat-label">Errors</div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-value" id="stat-critical">0</div>
+                        <div class="stat-label">Critical Threats</div>
+                    </div>
+                </div>
+
+                <!-- Query Console -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">⚡ SQL Query Console</div>
+                    </div>
+                    <div class="console-input-wrapper">
+                        <div class="form-group">
+                            <input type="text" id="query-input" placeholder="Enter SQL query... (e.g., SELECT * FROM employees)" autocomplete="off">
+                        </div>
+                        <button class="btn btn-primary" onclick="executeQuery()" style="margin-bottom: 0; white-space: nowrap;">
+                            ▶ Execute
+                        </button>
+                    </div>
+                    <div class="console-output" id="console-output">
+                        <div class="console-line accent">🛡️ SecureDB Watch — Query Console Ready</div>
+                        <div class="console-line info">Type a SQL query and press Enter or click Execute.</div>
+                        <div class="console-line info">All queries are analyzed, authorized, and logged.</div>
+                        <div class="console-line info">─────────────────────────────────────────────────</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ MY ACTIVITY SECTION (All Users) ═══ -->
+            <div id="mylogs" class="section">
+                <div class="page-header">
+                    <h1 class="page-title">📋 My Activity</h1>
+                    <p class="page-subtitle">Your personal query execution history</p>
+                </div>
+
+                <div class="toolbar">
+                    <div></div>
+                    <div class="toolbar-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="loadMyLogs()">🔄 Refresh</button>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-wrapper" style="max-height: 600px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Query</th>
+                                    <th>Risk</th>
+                                    <th>Status</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mylogs-tbody">
+                                <tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">Loading...</div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ AUDIT LOGS SECTION ═══ -->
+            <div id="logs" class="section">
+                <div class="page-header">
+                    <h1 class="page-title">📜 Audit Logs</h1>
+                    <p class="page-subtitle">Complete record of all database query attempts</p>
+                </div>
+
+                <div class="toolbar">
+                    <div></div>
+                    <div class="toolbar-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="loadLogs()">🔄 Refresh</button>
+                        <button class="btn btn-danger btn-sm" onclick="clearLogs()">🗑️ Clear Logs</button>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-wrapper" style="max-height: 600px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>User</th>
+                                    <th>Query</th>
+                                    <th>Risk</th>
+                                    <th>Status</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-tbody">
+                                <tr><td colspan="6" class="empty-state"><div class="empty-state-icon">📜</div><div class="empty-state-text">Loading...</div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ RULES ENGINE SECTION ═══ -->
+            <div id="rules" class="section">
+                <div class="page-header">
+                    <h1 class="page-title">⚙️ Rules Engine</h1>
+                    <p class="page-subtitle">Custom security rules for threat detection (KEYWORD & REGEX)</p>
+                </div>
+
+                <div class="toolbar">
+                    <div></div>
+                    <div class="toolbar-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="loadRules()">🔄 Refresh</button>
+                        <button class="btn btn-primary btn-sm" onclick="showAddRuleModal()">➕ Add Rule</button>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Value</th>
+                                    <th>Threat Level</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rules-tbody">
+                                <tr><td colspan="6" class="empty-state"><div class="empty-state-icon">⚙️</div><div class="empty-state-text">Loading...</div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ USER MANAGEMENT SECTION ═══ -->
+            <div id="users" class="section">
+                <div class="page-header">
+                    <h1 class="page-title">👤 User Management</h1>
+                    <p class="page-subtitle">Create, edit, and manage system users</p>
+                </div>
+
+                <div class="toolbar">
+                    <div></div>
+                    <div class="toolbar-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="loadUsers()">🔄 Refresh</button>
+                        <button class="btn btn-primary btn-sm" onclick="showAddUserModal()">➕ Add User</button>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <tr><td colspan="4" class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-text">Loading...</div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ ROLE MANAGEMENT SECTION ═══ -->
+            <div id="roles" class="section">
+                <div class="page-header">
+                    <h1 class="page-title">🛡️ Role Management</h1>
+                    <p class="page-subtitle">Define and manage access control roles</p>
+                </div>
+
+                <div class="toolbar">
+                    <div></div>
+                    <div class="toolbar-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="loadRoles()">🔄 Refresh</button>
+                        <button class="btn btn-primary btn-sm" onclick="showAddRoleModal()">➕ Add Role</button>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Role Name</th>
+                                    <th>Allowed Commands</th>
+                                    <th>Blocked Commands</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roles-tbody">
+                                <tr><td colspan="5" class="empty-state"><div class="empty-state-icon">🛡️</div><div class="empty-state-text">Loading...</div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ═══ Generic Modal ═══ -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Modal</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div id="modal-body"></div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="modal-submit">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

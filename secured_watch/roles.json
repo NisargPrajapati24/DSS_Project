@@ -1,0 +1,33 @@
+[
+  {
+    "name": "admin",
+    "allowed_commands": [
+      "ALL"
+    ],
+    "blocked_commands": []
+  },
+  {
+    "name": "user1",
+    "allowed_commands": [
+      "ALL"
+    ],
+    "blocked_commands": [
+      "DELETE",
+      "DROP",
+      "TRUNCATE"
+    ]
+  },
+  {
+    "name": "user2",
+    "allowed_commands": [
+      "SELECT"
+    ],
+    "blocked_commands": [
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "DROP",
+      "TRUNCATE"
+    ]
+  }
+]
